@@ -1,0 +1,44 @@
+plugins {
+    id 'java'
+}
+
+group = 'ro.eduardismund'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    implementation 'org.apache.tomcat.embed:tomcat-embed-core:10.1.19'
+    compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+    implementation 'org.postgresql:postgresql:42.6.0'
+    compileOnly 'org.projectlombok:lombok:1.18.34'
+    annotationProcessor 'org.projectlombok:lombok:1.18.34'
+
+}
+
+tasks.register('uberJar', Jar) {
+    group = 'build'
+    dependsOn assemble
+    archiveBaseName.set("${project.name}-uber")
+    archiveVersion.set("${project.version}")
+
+    from sourceSets.main.output
+
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
+
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    manifest {
+        attributes('Main-Class': 'ro.eduardismund.Main')
+    }
+}
+
+test {
+    useJUnitPlatform()
+}

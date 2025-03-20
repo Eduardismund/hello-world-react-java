@@ -1,0 +1,22 @@
+name: mpp-hello
+services:
+  db:
+    image: postgres:17.4
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: hello
+    ports:
+      - target: 5432
+    volumes:
+      - target: /docker-entrypoint-initdb.d/init.sql
+        source: ${PWD}/backend/db/db-init.sql
+        read_only: true
+        type: bind
+  app:
+    image: mpp-hello
+    build:
+      context: ${PWD}
+    ports:
+      - published: 8080
+        target: 8080
